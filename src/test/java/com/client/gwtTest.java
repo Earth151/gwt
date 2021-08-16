@@ -1,8 +1,6 @@
 package com.client;
 
-import com.gwt.client.GreetingService;
-import com.gwt.client.GreetingServiceAsync;
-import com.gwt.shared.FieldVerifier;
+import com.shared.FieldVerifier;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;

@@ -1,6 +1,6 @@
-package com.gwt.client;
+package com.client;
 
-import com.gwt.shared.FieldVerifier;
+import com.shared.FieldVerifier;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
