@@ -25,7 +25,6 @@ public class IntroPage implements EntryPoint {
         flexTable.setCellPadding(3);
         flexTable.setBorderWidth(1);
         flexTable.addStyleName("cw-FlexTable");
-        //flexTable.setWidth("80em");
         //-----------------------------------------------------IntroPage elements
         Button sendButton = new Button("Send");
         TextBox amountField = new TextBox();
@@ -68,6 +67,7 @@ public class IntroPage implements EntryPoint {
             RootPanel.get("introPageContainer").setVisible(true);
             RootPanel.get("sortPageContainer").clear();
             RootPanel.get("sortPageContainer").setVisible(false);
+            toSortByDescending = true;
         });
 
         sortButton.addClickHandler(clickEvent -> {
@@ -91,10 +91,6 @@ public class IntroPage implements EntryPoint {
         if (amount % NUMBER_CONSTANT_10 != 0) {
             columnCount++;
         }
-//        if (array == null) {
-//            array = Util.generateArray(amountOfNumbers);
-//            currentArray = array;
-//        }
         for (int i = 0; i < columnCount; i++) {
             rowsToSet = amount - NUMBER_CONSTANT_10 >= 0 ? NUMBER_CONSTANT_10 : amount;
             amount -= NUMBER_CONSTANT_10;
@@ -113,12 +109,13 @@ public class IntroPage implements EntryPoint {
     private void addCell(int row, int column, int number) {
         Button button = new Button(String.valueOf(number));
         button.setSize("6em", "2em");
-//        button.setStyleName("numberButton");
+        button.setStyleName("numberButton");
         button.addClickHandler(clickEvent -> {
             if (Integer.parseInt(button.getText()) <= NUMBER_CONSTANT_30) {
                 RootPanel.get("sortPageContainer").clear();
                 currentArray = Util.generateArray(amountOfNumbers);
                 RootPanel.get("sortPageContainer").add(createTable(currentArray));
+                toSortByDescending = true;
             } else {
                 Window.alert("Please select a value smaller or equal to 30");
             }
@@ -126,7 +123,6 @@ public class IntroPage implements EntryPoint {
         flexTable.setWidget(row, column, button);
     }
 
-    //TODO
     private void quickSortDescending(int[] array, int low, int high) {
         if (array.length == 0 || low >= high) {
             return;
@@ -153,15 +149,15 @@ public class IntroPage implements EntryPoint {
             }
         }
 
-//        Timer t = new Timer() {
+//        currentArray = array;
+//        Timer timer = new Timer() {
 //            @Override
 //            public void run() {
-//                createTable(array);
+//                RootPanel.get("sortPageContainer").clear();
+//                RootPanel.get("sortPageContainer").add(createTable(currentArray));
 //            }
 //        };
-//        t.schedule(1000);
-        RootPanel.get("sortPageContainer").clear();
-        RootPanel.get("sortPageContainer").add(createTable(array));
+//        timer.scheduleRepeating(1500);
 
         // вызов рекурсии для сортировки левой и правой части
         if (low < j) {
@@ -172,8 +168,6 @@ public class IntroPage implements EntryPoint {
         }
     }
 
-    //TODO??
-    //OLD:(int[] array, int low, int high)
     private void quickSortAscending(int[] array, int low, int high) {
         if (array.length == 0 || low >= high) {
             return;
@@ -196,15 +190,17 @@ public class IntroPage implements EntryPoint {
                 j--;
             }
         }
-//        Timer t = new Timer() {
+
+//        currentArray = array;
+//        Timer timer = new Timer() {
 //            @Override
 //            public void run() {
-//                createTable(array);
+//                RootPanel.get("sortPageContainer").clear();
+//                RootPanel.get("sortPageContainer").add(createTable(currentArray));
+//                cancel();
 //            }
 //        };
-//        t.schedule(3000);
-        RootPanel.get("sortPageContainer").clear();
-        RootPanel.get("sortPageContainer").add(createTable(currentArray));
+//        timer.scheduleRepeating(1500);
 
         if (low < j) {
             quickSortAscending(array, low, j);
