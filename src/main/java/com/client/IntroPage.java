@@ -1,137 +1,216 @@
 package com.client;
 
-import com.shared.Util;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.shared.Util;
+
+import static com.shared.Util.NUMBER_CONSTANT_10;
+import static com.shared.Util.NUMBER_CONSTANT_30;
 
 public class IntroPage implements EntryPoint {
 
-    /**
-     * Create a remote service proxy to talk to the server-side Greeting service.
-     */
-    private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
+    private int[] currentArray;
+    private int amountOfNumbers = 0;
+    private FlexTable flexTable = new FlexTable();
+    private boolean toSortByDescending = true;
 
-    /**
-     * This is the entry point method.
-     */
     public void onModuleLoad() {
-        final Button sendButton = new Button("Send");
-        final TextBox nameField = new TextBox();
-        final Label errorLabel = new Label();
+        flexTable.setCellSpacing(5);
+        flexTable.setCellPadding(3);
+        flexTable.setBorderWidth(1);
+        flexTable.addStyleName("cw-FlexTable");
+        //flexTable.setWidth("80em");
+        //-----------------------------------------------------IntroPage elements
+        Button sendButton = new Button("Send");
+        TextBox amountField = new TextBox();
+        Label errorLabel = new Label();
+        //-----------------------------------------------------SortPage elements
+        Button sortButton = new Button("Sort");
+        Button resetButton = new Button("Reset");
 
-        // We can add style names to widgets
-        sendButton.addStyleName("sendButton");
-
-        // Add the nameField and sendButton to the RootPanel
+        // Add the amountField and sendButton to the RootPanel
         // Use RootPanel.get() to get the entire body element
-        RootPanel.get("nameFieldContainer").add(nameField);
+        RootPanel.get("amountFieldContainer").add(amountField);
         RootPanel.get("sendButtonContainer").add(sendButton);
         RootPanel.get("errorLabelContainer").add(errorLabel);
+        RootPanel.get("sortButtonContainer").add(sortButton);
+        RootPanel.get("resetButtonContainer").add(resetButton);
+        RootPanel.get("sortPageContainer").setVisible(false);
 
         // Focus the cursor on the name field when the app loads
-        nameField.setFocus(true);
-        nameField.selectAll();
+        amountField.setFocus(true);
+        amountField.selectAll();
 
-        // Create the popup dialog box TODO REMOVE
-        final DialogBox dialogBox = new DialogBox();
-        dialogBox.setText("Remote Procedure Call");
-        dialogBox.setAnimationEnabled(true);
-        final Button closeButton = new Button("Close");
-        // We can set the id of a widget by accessing its Element
-        closeButton.getElement().setId("closeButton");
-        final Label textToServerLabel = new Label();
-        final HTML serverResponseLabel = new HTML();
-        VerticalPanel dialogVPanel = new VerticalPanel();
-        dialogVPanel.addStyleName("dialogVPanel");
-        dialogVPanel.add(new HTML("<b>Sending name to the server:</b>"));
-        dialogVPanel.add(textToServerLabel);
-        dialogVPanel.add(new HTML("<br><b>Server replies:</b>"));
-        dialogVPanel.add(serverResponseLabel);
-        dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
-        dialogVPanel.add(closeButton);
-        dialogBox.setWidget(dialogVPanel);
-
-        // Add a handler to close the DialogBox
-        closeButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                dialogBox.hide();
-                sendButton.setEnabled(true);
-                sendButton.setFocus(true);
+        //Creating all handlers---------------------------------------------------------------------------------------
+        sendButton.addClickHandler(clickEvent -> {
+            errorLabel.setText("");
+            String amountToValid = amountField.getText();
+            if (!Util.isAmountValid(amountToValid)) {
+                errorLabel.setText("Amount invalid, must be between 2 and 50 and should not be a string");
+                return;
             }
+            amountOfNumbers = Integer.parseInt(amountToValid);
+            currentArray = Util.generateArray(amountOfNumbers);
+            RootPanel.get("introPageContainer").setVisible(false);
+            RootPanel.get("sortPageContainer").add(createTable(currentArray));
+            RootPanel.get("sortPageContainer").setVisible(true);
         });
 
-        // Create a handler for the sendButton and nameField
-        class MyHandler implements ClickHandler, KeyUpHandler {
-            /**
-             * Fired when the user clicks on the sendButton.
-             */
-            public void onClick(ClickEvent event) {
-                sendNameToServer();
+        resetButton.addClickHandler(clickEvent -> {
+            errorLabel.setText("");
+            amountField.setText("");
+            RootPanel.get("introPageContainer").setVisible(true);
+            RootPanel.get("sortPageContainer").clear();
+            RootPanel.get("sortPageContainer").setVisible(false);
+        });
+
+        sortButton.addClickHandler(clickEvent -> {
+            //Sorting logic
+            int[] array = currentArray;
+            if (toSortByDescending) {
+                quickSortDescending(array, 0, amountOfNumbers - 1);
+                toSortByDescending = false;
+            } else {
+                quickSortAscending(array, 0, amountOfNumbers - 1);
+                toSortByDescending = true;
+            }
+        });
+    }
+
+    private FlexTable createTable(int[] array) {
+        flexTable.removeAllRows();
+        int amount = amountOfNumbers;
+        int rowsToSet;
+        int columnCount = (amount / NUMBER_CONSTANT_10);
+        if (amount % NUMBER_CONSTANT_10 != 0) {
+            columnCount++;
+        }
+//        if (array == null) {
+//            array = Util.generateArray(amountOfNumbers);
+//            currentArray = array;
+//        }
+        for (int i = 0; i < columnCount; i++) {
+            rowsToSet = amount - NUMBER_CONSTANT_10 >= 0 ? NUMBER_CONSTANT_10 : amount;
+            amount -= NUMBER_CONSTANT_10;
+            addColumn(rowsToSet, i, array);
+        }
+        return flexTable;
+    }
+
+    private void addColumn(int rows, int column, int[] array) {
+        int arrayIndex = column * 10;
+        for (int i = arrayIndex, j = 0; i < rows + arrayIndex; i++, j++) {
+            addCell(j, column, array[i]);
+        }
+    }
+
+    private void addCell(int row, int column, int number) {
+        Button button = new Button(String.valueOf(number));
+        button.setSize("6em", "2em");
+//        button.setStyleName("numberButton");
+        button.addClickHandler(clickEvent -> {
+            if (Integer.parseInt(button.getText()) <= NUMBER_CONSTANT_30) {
+                RootPanel.get("sortPageContainer").clear();
+                currentArray = Util.generateArray(amountOfNumbers);
+                RootPanel.get("sortPageContainer").add(createTable(currentArray));
+            } else {
+                Window.alert("Please select a value smaller or equal to 30");
+            }
+        });
+        flexTable.setWidget(row, column, button);
+    }
+
+    //TODO
+    private void quickSortDescending(int[] array, int low, int high) {
+        if (array.length == 0 || low >= high) {
+            return;
+        }
+        // выбрать опорный элемент
+        int pivot = array[low + (high - low) / 2];
+
+        // разделить на подмассивы, который больше и меньше опорного элемента
+        int i = low, j = high;
+        while (i <= j) {
+            while (array[i] > pivot) {
+                i++;
+            }
+            while (array[j] < pivot) {
+                j--;
             }
 
-            /**
-             * Fired when the user types in the nameField.
-             */
-            public void onKeyUp(KeyUpEvent event) {
-                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    sendNameToServer();
-                }
-            }
-
-            /**
-             * Send the name from the nameField to the server and wait for a response.
-             */
-            private void sendNameToServer() {
-                // First, we validate the input.
-                errorLabel.setText("");
-                String amountToServer = nameField.getText();
-                if (!Util.isAmountValid(Integer.parseInt(amountToServer))) {
-                    errorLabel.setText("Amount invalid, must be between 2 and 50");
-                    return;
-                }
-
-                // Then, we send the input to the server.
-                sendButton.setEnabled(false);
-                textToServerLabel.setText(amountToServer);
-                //TODO REPLACE
-                serverResponseLabel.setText("bruh");
-                greetingService.greetServer(amountToServer, new AsyncCallback<String>() {
-                    public void onFailure(Throwable caught) {
-                        // Show the RPC error message to the user
-                        dialogBox.setText("Remote Procedure Call - Failure");
-                        serverResponseLabel.addStyleName("serverResponseLabelError");
-                        serverResponseLabel.setHTML(Util.SERVER_ERROR);
-                        dialogBox.center();
-                        closeButton.setFocus(true);
-                    }
-
-                    public void onSuccess(String result) {
-                        dialogBox.setText("Remote Procedure Call");
-                        serverResponseLabel.removeStyleName("serverResponseLabelError");
-                        serverResponseLabel.setHTML(result);
-                        dialogBox.center();
-                        closeButton.setFocus(true);
-                    }
-                });
+            if (i <= j) { //меняем местами
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+                i++;
+                j--;
             }
         }
 
-        // Add a handler to send the name to the server
-        MyHandler handler = new MyHandler();
-        sendButton.addClickHandler(handler);
-        nameField.addKeyUpHandler(handler);
+//        Timer t = new Timer() {
+//            @Override
+//            public void run() {
+//                createTable(array);
+//            }
+//        };
+//        t.schedule(1000);
+        RootPanel.get("sortPageContainer").clear();
+        RootPanel.get("sortPageContainer").add(createTable(array));
+
+        // вызов рекурсии для сортировки левой и правой части
+        if (low < j) {
+            quickSortDescending(array, low, j);
+        }
+        if (high > i) {
+            quickSortDescending(array, i, high);
+        }
+    }
+
+    //TODO??
+    //OLD:(int[] array, int low, int high)
+    private void quickSortAscending(int[] array, int low, int high) {
+        if (array.length == 0 || low >= high) {
+            return;
+        }
+        int pivot = array[low + (high - low) / 2];
+        int i = low, j = high;
+        while (i <= j) {
+            while (array[i] < pivot) {
+                i++;
+            }
+            while (array[j] > pivot) {
+                j--;
+            }
+
+            if (i <= j) {
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+                i++;
+                j--;
+            }
+        }
+//        Timer t = new Timer() {
+//            @Override
+//            public void run() {
+//                createTable(array);
+//            }
+//        };
+//        t.schedule(3000);
+        RootPanel.get("sortPageContainer").clear();
+        RootPanel.get("sortPageContainer").add(createTable(currentArray));
+
+        if (low < j) {
+            quickSortAscending(array, low, j);
+        }
+        if (high > i) {
+            quickSortAscending(array, i, high);
+        }
     }
 }
