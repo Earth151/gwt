@@ -9,6 +9,9 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.shared.Util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.shared.Util.AMOUNT_FIELD_CONTAINER;
 import static com.shared.Util.ERROR_LABEL_CONTAINER;
 import static com.shared.Util.ERROR_MESSAGE_BUTTON_NUMBER_IS_MORE_THAN_30;
@@ -16,6 +19,7 @@ import static com.shared.Util.ERROR_MESSAGE_WRONG_ENTERED_AMOUNT;
 import static com.shared.Util.INTRO_PAGE_CONTAINER;
 import static com.shared.Util.NUMBER_CONSTANT_10;
 import static com.shared.Util.NUMBER_CONSTANT_30;
+import static com.shared.Util.NUMBER_CONSTANT_50;
 import static com.shared.Util.RESET_BUTTON_CONTAINER;
 import static com.shared.Util.SEND_BUTTON_CONTAINER;
 import static com.shared.Util.SORT_BUTTON_CONTAINER;
@@ -26,6 +30,7 @@ public class IntroPage implements EntryPoint {
     private int[] currentArray;
     private int amountOfNumbers = 0;
     private FlexTable flexTable = new FlexTable();
+    private List<Button> buttonsWithNumbers;
     private boolean toSortByDescending = true;
 
     public void onModuleLoad() {
@@ -78,6 +83,9 @@ public class IntroPage implements EntryPoint {
         });
 
         sortButton.addClickHandler(clickEvent -> {
+            resetButton.setEnabled(false);
+            sortButton.setEnabled(false);
+            enableOrDisableNumberButtons(false);
             if (toSortByDescending) {
                 quickSortDescending(currentArray, 0, amountOfNumbers - 1);
                 toSortByDescending = false;
@@ -85,6 +93,9 @@ public class IntroPage implements EntryPoint {
                 quickSortAscending(currentArray, 0, amountOfNumbers - 1);
                 toSortByDescending = true;
             }
+            resetButton.setEnabled(true);
+            sortButton.setEnabled(true);
+            enableOrDisableNumberButtons(true);
             RootPanel.get(SORT_PAGE_CONTAINER).clear();
             RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
         });
@@ -92,6 +103,7 @@ public class IntroPage implements EntryPoint {
 
     private FlexTable createTable(int[] array) {
         flexTable.removeAllRows();
+        buttonsWithNumbers = new ArrayList<>(NUMBER_CONSTANT_50);
         int amount = amountOfNumbers;
         int rowsToSet;
         int columnCount = (amount / NUMBER_CONSTANT_10);
@@ -118,8 +130,10 @@ public class IntroPage implements EntryPoint {
         button.setSize("6em", "2em");
         button.setStyleName("numberButton");
         button.addClickHandler(clickEvent -> {
-            if (Integer.parseInt(button.getText()) <= NUMBER_CONSTANT_30) {
+            int buttonNumber = Integer.parseInt(button.getText());
+            if (buttonNumber <= NUMBER_CONSTANT_30) {
                 RootPanel.get(SORT_PAGE_CONTAINER).clear();
+                amountOfNumbers = buttonNumber;
                 currentArray = Util.generateArray(amountOfNumbers);
                 RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
                 toSortByDescending = true;
@@ -127,6 +141,7 @@ public class IntroPage implements EntryPoint {
                 Window.alert(ERROR_MESSAGE_BUTTON_NUMBER_IS_MORE_THAN_30);
             }
         });
+        buttonsWithNumbers.add(button);
         flexTable.setWidget(row, column, button);
     }
 
@@ -155,9 +170,6 @@ public class IntroPage implements EntryPoint {
                 j--;
             }
         }
-
-        //Here I should insert code of delay if I find out how to set it between sort iterations properly
-
         // вызов рекурсии для сортировки левой и правой части
         if (low < j) {
             quickSortDescending(array, low, j);
@@ -189,12 +201,22 @@ public class IntroPage implements EntryPoint {
                 j--;
             }
         }
-
         if (low < j) {
             quickSortAscending(array, low, j);
         }
         if (high > i) {
             quickSortAscending(array, i, high);
         }
+    }
+
+    /**
+     * Method enables or disables all buttons with numbers
+     * in table depending on given boolean value,
+     * if given value is <true> - buttons will be enabled, otherwise disabled
+     *
+     * @param toEnable value that means if buttons should be enabled or disabled
+     */
+    private void enableOrDisableNumberButtons(boolean toEnable) {
+        buttonsWithNumbers.forEach(b -> b.setEnabled(toEnable));
     }
 }
