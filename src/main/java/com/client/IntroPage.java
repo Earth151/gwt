@@ -14,10 +14,11 @@ import java.util.List;
 
 import static com.shared.Util.AMOUNT_FIELD_CONTAINER;
 import static com.shared.Util.ERROR_LABEL_CONTAINER;
-import static com.shared.Util.ERROR_MESSAGE_BUTTON_NUMBER_IS_MORE_THAN_30;
+import static com.shared.Util.ERROR_MESSAGE_WRONG_BUTTON_NUMBER;
 import static com.shared.Util.ERROR_MESSAGE_WRONG_ENTERED_AMOUNT;
 import static com.shared.Util.INTRO_PAGE_CONTAINER;
 import static com.shared.Util.NUMBER_CONSTANT_10;
+import static com.shared.Util.NUMBER_CONSTANT_2;
 import static com.shared.Util.NUMBER_CONSTANT_30;
 import static com.shared.Util.NUMBER_CONSTANT_50;
 import static com.shared.Util.RESET_BUTTON_CONTAINER;
@@ -131,14 +132,14 @@ public class IntroPage implements EntryPoint {
         button.setStyleName("numberButton");
         button.addClickHandler(clickEvent -> {
             int buttonNumber = Integer.parseInt(button.getText());
-            if (buttonNumber <= NUMBER_CONSTANT_30) {
+            if (buttonNumber <= NUMBER_CONSTANT_30 && buttonNumber >= NUMBER_CONSTANT_2) {
                 RootPanel.get(SORT_PAGE_CONTAINER).clear();
                 amountOfNumbers = buttonNumber;
                 currentArray = Util.generateArray(amountOfNumbers);
                 RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
                 toSortByDescending = true;
             } else {
-                Window.alert(ERROR_MESSAGE_BUTTON_NUMBER_IS_MORE_THAN_30);
+                Window.alert(ERROR_MESSAGE_WRONG_BUTTON_NUMBER);
             }
         });
         buttonsWithNumbers.add(button);

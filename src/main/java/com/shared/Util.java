@@ -19,8 +19,8 @@ public class Util {
     public static final String ERROR_LABEL_CONTAINER = "errorLabelContainer";
     public static final String ERROR_MESSAGE_WRONG_ENTERED_AMOUNT
             = "Amount invalid, must be between 2 and 50 and should not be a string";
-    public static final String ERROR_MESSAGE_BUTTON_NUMBER_IS_MORE_THAN_30
-            = "Please select a value smaller or equal to 30";
+    public static final String ERROR_MESSAGE_WRONG_BUTTON_NUMBER
+            = "Please select a value smaller or equal to 30 and bigger than 1";
 
     public static final String AMOUNT_FIELD_CONTAINER = "amountFieldContainer";
 
