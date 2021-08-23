@@ -13,6 +13,21 @@ public class Util {
     public static final int NUMBER_CONSTANT_31 = 31;
     public static final int NUMBER_CONSTANT_50 = 50;
 
+    public static final String SORT_PAGE_CONTAINER = "sortPageContainer";
+    public static final String INTRO_PAGE_CONTAINER = "introPageContainer";
+
+    public static final String ERROR_LABEL_CONTAINER = "errorLabelContainer";
+    public static final String ERROR_MESSAGE_WRONG_ENTERED_AMOUNT
+            = "Amount invalid, must be between 2 and 50 and should not be a string";
+    public static final String ERROR_MESSAGE_BUTTON_NUMBER_IS_MORE_THAN_30
+            = "Please select a value smaller or equal to 30";
+
+    public static final String AMOUNT_FIELD_CONTAINER = "amountFieldContainer";
+
+    public static final String SEND_BUTTON_CONTAINER = "sendButtonContainer";
+    public static final String RESET_BUTTON_CONTAINER = "resetButtonContainer";
+    public static final String SORT_BUTTON_CONTAINER = "sortButtonContainer";
+
     private Util() {
         throw new UnsupportedOperationException("Cannot create utility class: " + getClass().getSimpleName());
     }

@@ -9,8 +9,17 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.shared.Util;
 
+import static com.shared.Util.AMOUNT_FIELD_CONTAINER;
+import static com.shared.Util.ERROR_LABEL_CONTAINER;
+import static com.shared.Util.ERROR_MESSAGE_BUTTON_NUMBER_IS_MORE_THAN_30;
+import static com.shared.Util.ERROR_MESSAGE_WRONG_ENTERED_AMOUNT;
+import static com.shared.Util.INTRO_PAGE_CONTAINER;
 import static com.shared.Util.NUMBER_CONSTANT_10;
 import static com.shared.Util.NUMBER_CONSTANT_30;
+import static com.shared.Util.RESET_BUTTON_CONTAINER;
+import static com.shared.Util.SEND_BUTTON_CONTAINER;
+import static com.shared.Util.SORT_BUTTON_CONTAINER;
+import static com.shared.Util.SORT_PAGE_CONTAINER;
 
 public class IntroPage implements EntryPoint {
 
@@ -25,7 +34,7 @@ public class IntroPage implements EntryPoint {
         flexTable.setBorderWidth(1);
         flexTable.addStyleName("cw-FlexTable");
 
-        Button sendButton = new Button("Send");
+        Button sendButton = new Button("Enter");
         TextBox amountField = new TextBox();
         Label errorLabel = new Label();
 
@@ -34,12 +43,12 @@ public class IntroPage implements EntryPoint {
 
         // Add the amountField and sendButton to the RootPanel
         // Use RootPanel.get() to get the entire body element
-        RootPanel.get("amountFieldContainer").add(amountField);
-        RootPanel.get("sendButtonContainer").add(sendButton);
-        RootPanel.get("errorLabelContainer").add(errorLabel);
-        RootPanel.get("sortButtonContainer").add(sortButton);
-        RootPanel.get("resetButtonContainer").add(resetButton);
-        RootPanel.get("sortPageContainer").setVisible(false);
+        RootPanel.get(AMOUNT_FIELD_CONTAINER).add(amountField);
+        RootPanel.get(SEND_BUTTON_CONTAINER).add(sendButton);
+        RootPanel.get(ERROR_LABEL_CONTAINER).add(errorLabel);
+        RootPanel.get(SORT_BUTTON_CONTAINER).add(sortButton);
+        RootPanel.get(RESET_BUTTON_CONTAINER).add(resetButton);
+        RootPanel.get(SORT_PAGE_CONTAINER).setVisible(false);
 
         amountField.setFocus(true);
         amountField.selectAll();
@@ -49,27 +58,26 @@ public class IntroPage implements EntryPoint {
             errorLabel.setText("");
             String amountToValid = amountField.getText();
             if (!Util.isAmountValid(amountToValid)) {
-                errorLabel.setText("Amount invalid, must be between 2 and 50 and should not be a string");
+                errorLabel.setText(ERROR_MESSAGE_WRONG_ENTERED_AMOUNT);
                 return;
             }
             amountOfNumbers = Integer.parseInt(amountToValid);
             currentArray = Util.generateArray(amountOfNumbers);
-            RootPanel.get("introPageContainer").setVisible(false);
-            RootPanel.get("sortPageContainer").add(createTable(currentArray));
-            RootPanel.get("sortPageContainer").setVisible(true);
+            RootPanel.get(INTRO_PAGE_CONTAINER).setVisible(false);
+            RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
+            RootPanel.get(SORT_PAGE_CONTAINER).setVisible(true);
         });
 
         resetButton.addClickHandler(clickEvent -> {
             errorLabel.setText("");
             amountField.setText("");
-            RootPanel.get("introPageContainer").setVisible(true);
-            RootPanel.get("sortPageContainer").clear();
-            RootPanel.get("sortPageContainer").setVisible(false);
+            RootPanel.get(INTRO_PAGE_CONTAINER).setVisible(true);
+            RootPanel.get(SORT_PAGE_CONTAINER).clear();
+            RootPanel.get(SORT_PAGE_CONTAINER).setVisible(false);
             toSortByDescending = true;
         });
 
         sortButton.addClickHandler(clickEvent -> {
-            //Sorting logic
             int[] array = currentArray;
             if (toSortByDescending) {
                 quickSortDescending(array, 0, amountOfNumbers - 1);
@@ -110,12 +118,12 @@ public class IntroPage implements EntryPoint {
         button.setStyleName("numberButton");
         button.addClickHandler(clickEvent -> {
             if (Integer.parseInt(button.getText()) <= NUMBER_CONSTANT_30) {
-                RootPanel.get("sortPageContainer").clear();
+                RootPanel.get(SORT_PAGE_CONTAINER).clear();
                 currentArray = Util.generateArray(amountOfNumbers);
-                RootPanel.get("sortPageContainer").add(createTable(currentArray));
+                RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
                 toSortByDescending = true;
             } else {
-                Window.alert("Please select a value smaller or equal to 30");
+                Window.alert(ERROR_MESSAGE_BUTTON_NUMBER_IS_MORE_THAN_30);
             }
         });
         flexTable.setWidget(row, column, button);
@@ -146,6 +154,9 @@ public class IntroPage implements EntryPoint {
                 j--;
             }
         }
+
+        RootPanel.get(SORT_PAGE_CONTAINER).clear();
+        RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(array));
 
         // вызов рекурсии для сортировки левой и правой части
         if (low < j) {
@@ -178,6 +189,9 @@ public class IntroPage implements EntryPoint {
                 j--;
             }
         }
+
+        RootPanel.get(SORT_PAGE_CONTAINER).clear();
+        RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(array));
 
         if (low < j) {
             quickSortAscending(array, low, j);
