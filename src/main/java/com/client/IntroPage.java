@@ -78,14 +78,15 @@ public class IntroPage implements EntryPoint {
         });
 
         sortButton.addClickHandler(clickEvent -> {
-            int[] array = currentArray;
             if (toSortByDescending) {
-                quickSortDescending(array, 0, amountOfNumbers - 1);
+                quickSortDescending(currentArray, 0, amountOfNumbers - 1);
                 toSortByDescending = false;
             } else {
-                quickSortAscending(array, 0, amountOfNumbers - 1);
+                quickSortAscending(currentArray, 0, amountOfNumbers - 1);
                 toSortByDescending = true;
             }
+            RootPanel.get(SORT_PAGE_CONTAINER).clear();
+            RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
         });
     }
 
@@ -155,8 +156,7 @@ public class IntroPage implements EntryPoint {
             }
         }
 
-        RootPanel.get(SORT_PAGE_CONTAINER).clear();
-        RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(array));
+        //Here I should insert code of delay if I find out how to set it between sort iterations properly
 
         // вызов рекурсии для сортировки левой и правой части
         if (low < j) {
@@ -189,9 +189,6 @@ public class IntroPage implements EntryPoint {
                 j--;
             }
         }
-
-        RootPanel.get(SORT_PAGE_CONTAINER).clear();
-        RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(array));
 
         if (low < j) {
             quickSortAscending(array, low, j);
