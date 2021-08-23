@@ -1,7 +1,6 @@
 package com.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -25,11 +24,11 @@ public class IntroPage implements EntryPoint {
         flexTable.setCellPadding(3);
         flexTable.setBorderWidth(1);
         flexTable.addStyleName("cw-FlexTable");
-        //-----------------------------------------------------IntroPage elements
+
         Button sendButton = new Button("Send");
         TextBox amountField = new TextBox();
         Label errorLabel = new Label();
-        //-----------------------------------------------------SortPage elements
+
         Button sortButton = new Button("Sort");
         Button resetButton = new Button("Reset");
 
@@ -42,11 +41,10 @@ public class IntroPage implements EntryPoint {
         RootPanel.get("resetButtonContainer").add(resetButton);
         RootPanel.get("sortPageContainer").setVisible(false);
 
-        // Focus the cursor on the name field when the app loads
         amountField.setFocus(true);
         amountField.selectAll();
 
-        //Creating all handlers---------------------------------------------------------------------------------------
+        //Creating all handlers---------------------------------------------------------------------------
         sendButton.addClickHandler(clickEvent -> {
             errorLabel.setText("");
             String amountToValid = amountField.getText();
@@ -149,16 +147,6 @@ public class IntroPage implements EntryPoint {
             }
         }
 
-//        currentArray = array;
-//        Timer timer = new Timer() {
-//            @Override
-//            public void run() {
-//                RootPanel.get("sortPageContainer").clear();
-//                RootPanel.get("sortPageContainer").add(createTable(currentArray));
-//            }
-//        };
-//        timer.scheduleRepeating(1500);
-
         // вызов рекурсии для сортировки левой и правой части
         if (low < j) {
             quickSortDescending(array, low, j);
@@ -190,17 +178,6 @@ public class IntroPage implements EntryPoint {
                 j--;
             }
         }
-
-//        currentArray = array;
-//        Timer timer = new Timer() {
-//            @Override
-//            public void run() {
-//                RootPanel.get("sortPageContainer").clear();
-//                RootPanel.get("sortPageContainer").add(createTable(currentArray));
-//                cancel();
-//            }
-//        };
-//        timer.scheduleRepeating(1500);
 
         if (low < j) {
             quickSortAscending(array, low, j);

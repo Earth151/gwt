@@ -18,7 +18,7 @@ public class Util {
     }
 
     /**
-     * @param amount the amount of numbers to validate
+     * @param amount the amount to validate
      * @return true if valid, false if invalid
      */
     public static boolean isAmountValid(String amount) {
@@ -32,8 +32,7 @@ public class Util {
      * @return created array of elements
      */
     public static int[] generateArray(int length) {
-        int[] array;
-        array = IntStream
+        int[] array = IntStream
                 .range(0, length)
                 .map(i -> (int) (Math.random() * HIGH_NUMBER_DIAPASON))
                 .toArray();
