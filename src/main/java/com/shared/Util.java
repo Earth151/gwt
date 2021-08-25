@@ -1,7 +1,12 @@
 package com.shared;
 
+import com.google.gwt.user.client.ui.TextBox;
+
 import java.util.stream.IntStream;
 
+/**
+ * Class provides utility methods, constants and error messages for application
+ */
 public class Util {
 
     private static final int HIGH_NUMBER_DIAPASON = 1001;
@@ -33,8 +38,11 @@ public class Util {
     }
 
     /**
-     * @param amount the amount to validate
-     * @return true if valid, false if invalid
+     * Method validates input text from {@link TextBox}
+     * in order to check that input string is correct number in range between 2 and 50
+     *
+     * @param amount the input number to validate
+     * @return <true> if given string is a number that in range between 2 and 50, otherwise return <false>
      */
     public static boolean isAmountValid(String amount) {
         return amount.matches(NUMBER_REGEX)
@@ -43,6 +51,8 @@ public class Util {
     }
 
     /**
+     * Method generates int array with numbers in range between 0 and 1000
+     *
      * @param length length of array to generate
      * @return created array of elements
      */

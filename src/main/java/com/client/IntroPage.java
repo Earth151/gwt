@@ -26,6 +26,10 @@ import static com.shared.Util.SEND_BUTTON_CONTAINER;
 import static com.shared.Util.SORT_BUTTON_CONTAINER;
 import static com.shared.Util.SORT_PAGE_CONTAINER;
 
+/**
+ * Main cLass that responsible for page elements creation and showing,
+ * page loading and sorting logic
+ */
 public class IntroPage implements EntryPoint {
 
     private int[] currentArray;
@@ -59,7 +63,6 @@ public class IntroPage implements EntryPoint {
         amountField.setFocus(true);
         amountField.selectAll();
 
-        //Creating all handlers---------------------------------------------------------------------------
         sendButton.addClickHandler(clickEvent -> {
             errorLabel.setText("");
             String amountToValid = amountField.getText();
@@ -97,6 +100,12 @@ public class IntroPage implements EntryPoint {
         });
     }
 
+    /**
+     * Method creates new table for showing on the page
+     *
+     * @param array array of elements for table
+     * @return {@link FlexTable} new table for showing on the page
+     */
     private FlexTable createTable(int[] array) {
         flexTable.removeAllRows();
         buttonsWithNumbers = new ArrayList<>(NUMBER_CONSTANT_50);
@@ -121,6 +130,15 @@ public class IntroPage implements EntryPoint {
         }
     }
 
+    /**
+     * Method creates new {@link Button} with given number for the table
+     * New button has onClick handler that will generate and load
+     * new table on the page with length described on clicked button
+     *
+     * @param row    row position of a cell
+     * @param column column position of a cell
+     * @param number number to be showed on a button
+     */
     private void addCell(int row, int column, int number) {
         Button button = new Button(String.valueOf(number));
         button.setSize("6em", "2em");
@@ -145,9 +163,7 @@ public class IntroPage implements EntryPoint {
         if (array.length == 0 || low >= high) {
             return;
         }
-        // выбрать опорный элемент
         int pivot = array[low + (high - low) / 2];
-        // разделить на подмассивы, который больше и меньше опорного элемента
         int i = low, j = high;
         while (i <= j) {
             if (toSortByDescending) {
@@ -173,7 +189,6 @@ public class IntroPage implements EntryPoint {
                 j--;
             }
         }
-        // вызов рекурсии для сортировки левой и правой части
         if (low < j) {
             quickSort(array, low, j);
         }
