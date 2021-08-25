@@ -87,13 +87,8 @@ public class IntroPage implements EntryPoint {
             resetButton.setEnabled(false);
             sortButton.setEnabled(false);
             enableOrDisableNumberButtons(false);
-            if (toSortByDescending) {
-                quickSortDescending(currentArray, 0, amountOfNumbers - 1);
-                toSortByDescending = false;
-            } else {
-                quickSortAscending(currentArray, 0, amountOfNumbers - 1);
-                toSortByDescending = true;
-            }
+            quickSort(currentArray, 0, amountOfNumbers - 1);
+            toSortByDescending = !toSortByDescending;
             resetButton.setEnabled(true);
             sortButton.setEnabled(true);
             enableOrDisableNumberButtons(true);
@@ -146,24 +141,31 @@ public class IntroPage implements EntryPoint {
         flexTable.setWidget(row, column, button);
     }
 
-    private void quickSortDescending(int[] array, int low, int high) {
+    private void quickSort(int[] array, int low, int high) {
         if (array.length == 0 || low >= high) {
             return;
         }
         // выбрать опорный элемент
         int pivot = array[low + (high - low) / 2];
-
         // разделить на подмассивы, который больше и меньше опорного элемента
         int i = low, j = high;
         while (i <= j) {
-            while (array[i] > pivot) {
-                i++;
+            if (toSortByDescending) {
+                while (array[i] > pivot) {
+                    i++;
+                }
+                while (array[j] < pivot) {
+                    j--;
+                }
+            } else {
+                while (array[i] < pivot) {
+                    i++;
+                }
+                while (array[j] > pivot) {
+                    j--;
+                }
             }
-            while (array[j] < pivot) {
-                j--;
-            }
-
-            if (i <= j) { //меняем местами
+            if (i <= j) {
                 int temp = array[i];
                 array[i] = array[j];
                 array[j] = temp;
@@ -173,40 +175,10 @@ public class IntroPage implements EntryPoint {
         }
         // вызов рекурсии для сортировки левой и правой части
         if (low < j) {
-            quickSortDescending(array, low, j);
+            quickSort(array, low, j);
         }
         if (high > i) {
-            quickSortDescending(array, i, high);
-        }
-    }
-
-    private void quickSortAscending(int[] array, int low, int high) {
-        if (array.length == 0 || low >= high) {
-            return;
-        }
-        int pivot = array[low + (high - low) / 2];
-        int i = low, j = high;
-        while (i <= j) {
-            while (array[i] < pivot) {
-                i++;
-            }
-            while (array[j] > pivot) {
-                j--;
-            }
-
-            if (i <= j) {
-                int temp = array[i];
-                array[i] = array[j];
-                array[j] = temp;
-                i++;
-                j--;
-            }
-        }
-        if (low < j) {
-            quickSortAscending(array, low, j);
-        }
-        if (high > i) {
-            quickSortAscending(array, i, high);
+            quickSort(array, i, high);
         }
     }
 
