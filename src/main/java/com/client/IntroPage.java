@@ -7,30 +7,40 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.shared.Util;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.shared.Util.AMOUNT_FIELD_CONTAINER;
-import static com.shared.Util.ERROR_LABEL_CONTAINER;
-import static com.shared.Util.ERROR_MESSAGE_WRONG_BUTTON_NUMBER;
-import static com.shared.Util.ERROR_MESSAGE_WRONG_ENTERED_AMOUNT;
-import static com.shared.Util.INTRO_PAGE_CONTAINER;
-import static com.shared.Util.NUMBER_CONSTANT_10;
-import static com.shared.Util.NUMBER_CONSTANT_2;
-import static com.shared.Util.NUMBER_CONSTANT_30;
-import static com.shared.Util.NUMBER_CONSTANT_50;
-import static com.shared.Util.RESET_BUTTON_CONTAINER;
-import static com.shared.Util.SEND_BUTTON_CONTAINER;
-import static com.shared.Util.SORT_BUTTON_CONTAINER;
-import static com.shared.Util.SORT_PAGE_CONTAINER;
+import java.util.stream.IntStream;
 
 /**
  * Main cLass that responsible for page elements creation and showing,
  * page loading and sorting logic
  */
 public class IntroPage implements EntryPoint {
+
+    private static final String NUMBER_REGEX = "^[0-9]+$";
+
+    private static final int HIGH_NUMBER_DIAPASON = 1001;
+    private static final int NUMBER_CONSTANT_2 = 2;
+    private static final int NUMBER_CONSTANT_10 = 10;
+    private static final int NUMBER_CONSTANT_30 = 30;
+    private static final int NUMBER_CONSTANT_31 = 31;
+    private static final int NUMBER_CONSTANT_50 = 50;
+
+    private static final String SORT_PAGE_CONTAINER = "sortPageContainer";
+    private static final String INTRO_PAGE_CONTAINER = "introPageContainer";
+
+    private static final String ERROR_LABEL_CONTAINER = "errorLabelContainer";
+    private static final String ERROR_MESSAGE_WRONG_ENTERED_AMOUNT
+            = "Amount invalid, must be between 2 and 50 and should not be a string";
+    private static final String ERROR_MESSAGE_WRONG_BUTTON_NUMBER
+            = "Please select a value smaller or equal to 30 and bigger than 1";
+
+    private static final String AMOUNT_FIELD_CONTAINER = "amountFieldContainer";
+
+    private static final String SEND_BUTTON_CONTAINER = "sendButtonContainer";
+    private static final String RESET_BUTTON_CONTAINER = "resetButtonContainer";
+    private static final String SORT_BUTTON_CONTAINER = "sortButtonContainer";
 
     private int[] currentArray;
     private int amountOfNumbers = 0;
@@ -51,8 +61,6 @@ public class IntroPage implements EntryPoint {
         Button sortButton = new Button("Sort");
         Button resetButton = new Button("Reset");
 
-        // Add the amountField and sendButton to the RootPanel
-        // Use RootPanel.get() to get the entire body element
         RootPanel.get(AMOUNT_FIELD_CONTAINER).add(amountField);
         RootPanel.get(SEND_BUTTON_CONTAINER).add(sendButton);
         RootPanel.get(ERROR_LABEL_CONTAINER).add(errorLabel);
@@ -66,12 +74,12 @@ public class IntroPage implements EntryPoint {
         sendButton.addClickHandler(clickEvent -> {
             errorLabel.setText("");
             String amountToValid = amountField.getText();
-            if (!Util.isAmountValid(amountToValid)) {
+            if (!isAmountValid(amountToValid)) {
                 errorLabel.setText(ERROR_MESSAGE_WRONG_ENTERED_AMOUNT);
                 return;
             }
             amountOfNumbers = Integer.parseInt(amountToValid);
-            currentArray = Util.generateArray(amountOfNumbers);
+            currentArray = generateArray(amountOfNumbers);
             RootPanel.get(INTRO_PAGE_CONTAINER).setVisible(false);
             RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
             RootPanel.get(SORT_PAGE_CONTAINER).setVisible(true);
@@ -148,7 +156,7 @@ public class IntroPage implements EntryPoint {
             if (buttonNumber <= NUMBER_CONSTANT_30 && buttonNumber >= NUMBER_CONSTANT_2) {
                 RootPanel.get(SORT_PAGE_CONTAINER).clear();
                 amountOfNumbers = buttonNumber;
-                currentArray = Util.generateArray(amountOfNumbers);
+                currentArray = generateArray(amountOfNumbers);
                 RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
                 toSortByDescending = true;
             } else {
@@ -206,5 +214,33 @@ public class IntroPage implements EntryPoint {
      */
     private void enableOrDisableNumberButtons(boolean toEnable) {
         buttonsWithNumbers.forEach(b -> b.setEnabled(toEnable));
+    }
+
+    /**
+     * Method validates input text from {@link TextBox}
+     * in order to check that input string is correct number in range between 2 and 50
+     *
+     * @param amount the input number to validate
+     * @return <true> if given string is a number that in range between 2 and 50, otherwise return <false>
+     */
+    private boolean isAmountValid(String amount) {
+        return amount.matches(NUMBER_REGEX)
+                && Integer.parseInt(amount) >= NUMBER_CONSTANT_2
+                && Integer.parseInt(amount) <= NUMBER_CONSTANT_50;
+    }
+
+    /**
+     * Method generates int array with numbers in range between 0 and 1000
+     *
+     * @param length length of array to generate
+     * @return created array of elements
+     */
+    private int[] generateArray(int length) {
+        int[] array = IntStream
+                .range(0, length)
+                .map(i -> (int) (Math.random() * HIGH_NUMBER_DIAPASON))
+                .toArray();
+        array[length - 1] = (int) (Math.random() * NUMBER_CONSTANT_31);
+        return array;
     }
 }
