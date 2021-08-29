@@ -1,6 +1,7 @@
 package com.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -13,19 +14,18 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 /**
- * Main cLass that responsible for page elements creation and showing,
- * page loading and sorting logic
+ * Main cLass that responsible for creation of the intro and sort pages,
+ * page refreshing during sort, elements creation and sort logic
  */
 public class IntroPage implements EntryPoint {
 
     private static final String NUMBER_REGEX = "^[0-9]+$";
 
-    private static final int HIGH_NUMBER_DIAPASON = 1001;
     private static final int NUMBER_CONSTANT_2 = 2;
     private static final int NUMBER_CONSTANT_10 = 10;
     private static final int NUMBER_CONSTANT_30 = 30;
-    private static final int NUMBER_CONSTANT_31 = 31;
     private static final int NUMBER_CONSTANT_50 = 50;
+    private static final int NUMBER_CONSTANT_1000 = 1000;
 
     private static final String SORT_PAGE_CONTAINER = "sortPageContainer";
     private static final String INTRO_PAGE_CONTAINER = "introPageContainer";
@@ -45,8 +45,12 @@ public class IntroPage implements EntryPoint {
     private int[] currentArray;
     private int amountOfNumbers = 0;
     private FlexTable flexTable = new FlexTable();
-    private List<Button> buttonsWithNumbers;
+    private List<Button> currentButtonsWithNumbers;
+
     private boolean toSortByDescending = true;
+    private boolean isButtonsShouldBeEnabled = true;
+    private Timer sortTimer;
+    private Timer timer;
 
     public void onModuleLoad() {
         flexTable.setCellSpacing(5);
@@ -97,14 +101,31 @@ public class IntroPage implements EntryPoint {
         sortButton.addClickHandler(clickEvent -> {
             resetButton.setEnabled(false);
             sortButton.setEnabled(false);
-            enableOrDisableNumberButtons(false);
+            isButtonsShouldBeEnabled = false;
+            disableNumberButtons();
             quickSort(currentArray, 0, amountOfNumbers - 1);
-            toSortByDescending = !toSortByDescending;
-            resetButton.setEnabled(true);
-            sortButton.setEnabled(true);
-            enableOrDisableNumberButtons(true);
-            RootPanel.get(SORT_PAGE_CONTAINER).clear();
-            RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
+            timer = new Timer() {
+                @Override
+                public void run() {
+                    if (!sortTimer.isRunning()) {
+                        resetButton.setEnabled(true);
+                        sortButton.setEnabled(true);
+                        isButtonsShouldBeEnabled = true;
+                        if (sortTimer != null) {
+                            sortTimer.cancel();
+                            sortTimer = null;
+                        }
+                        if (timer != null) {
+                            timer.cancel();
+                            timer = null;
+                        }
+                        toSortByDescending = !toSortByDescending;
+                        RootPanel.get(SORT_PAGE_CONTAINER).clear();
+                        RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(currentArray));
+                    }
+                }
+            };
+            timer.scheduleRepeating(NUMBER_CONSTANT_1000);
         });
     }
 
@@ -116,7 +137,7 @@ public class IntroPage implements EntryPoint {
      */
     private FlexTable createTable(int[] array) {
         flexTable.removeAllRows();
-        buttonsWithNumbers = new ArrayList<>(NUMBER_CONSTANT_50);
+        currentButtonsWithNumbers = new ArrayList<>(NUMBER_CONSTANT_50);
         int amount = amountOfNumbers;
         int rowsToSet;
         int columnCount = (amount / NUMBER_CONSTANT_10);
@@ -132,7 +153,7 @@ public class IntroPage implements EntryPoint {
     }
 
     private void addColumn(int rows, int column, int[] array) {
-        int arrayIndex = column * 10;
+        int arrayIndex = column * NUMBER_CONSTANT_10;
         for (int i = arrayIndex, j = 0; i < rows + arrayIndex; i++, j++) {
             addCell(j, column, array[i]);
         }
@@ -151,6 +172,9 @@ public class IntroPage implements EntryPoint {
         Button button = new Button(String.valueOf(number));
         button.setSize("6em", "2em");
         button.setStyleName("numberButton");
+        if (!isButtonsShouldBeEnabled) {
+            button.setEnabled(false);
+        }
         button.addClickHandler(clickEvent -> {
             int buttonNumber = Integer.parseInt(button.getText());
             if (buttonNumber <= NUMBER_CONSTANT_30 && buttonNumber >= NUMBER_CONSTANT_2) {
@@ -163,7 +187,7 @@ public class IntroPage implements EntryPoint {
                 Window.alert(ERROR_MESSAGE_WRONG_BUTTON_NUMBER);
             }
         });
-        buttonsWithNumbers.add(button);
+        currentButtonsWithNumbers.add(button);
         flexTable.setWidget(row, column, button);
     }
 
@@ -171,49 +195,54 @@ public class IntroPage implements EntryPoint {
         if (array.length == 0 || low >= high) {
             return;
         }
-        int pivot = array[low + (high - low) / 2];
-        int i = low, j = high;
-        while (i <= j) {
-            if (toSortByDescending) {
-                while (array[i] > pivot) {
-                    i++;
+        sortTimer = null;
+        sortTimer = new Timer() {
+            @Override
+            public void run() {
+                int pivot = array[low + (high - low) / 2];
+                int i = low, j = high;
+                while (i <= j) {
+                    if (toSortByDescending) {
+                        while (array[i] > pivot) {
+                            i++;
+                        }
+                        while (array[j] < pivot) {
+                            j--;
+                        }
+                    } else {
+                        while (array[i] < pivot) {
+                            i++;
+                        }
+                        while (array[j] > pivot) {
+                            j--;
+                        }
+                    }
+                    if (i <= j) {
+                        int temp = array[i];
+                        array[i] = array[j];
+                        array[j] = temp;
+                        i++;
+                        j--;
+                        RootPanel.get(SORT_PAGE_CONTAINER).clear();
+                        RootPanel.get(SORT_PAGE_CONTAINER).add(createTable(array));
+                    }
                 }
-                while (array[j] < pivot) {
-                    j--;
+                if (low < j) {
+                    quickSort(array, low, j);
                 }
-            } else {
-                while (array[i] < pivot) {
-                    i++;
-                }
-                while (array[j] > pivot) {
-                    j--;
+                if (high > i) {
+                    quickSort(array, i, high);
                 }
             }
-            if (i <= j) {
-                int temp = array[i];
-                array[i] = array[j];
-                array[j] = temp;
-                i++;
-                j--;
-            }
-        }
-        if (low < j) {
-            quickSort(array, low, j);
-        }
-        if (high > i) {
-            quickSort(array, i, high);
-        }
+        };
+        sortTimer.schedule(NUMBER_CONSTANT_1000);
     }
 
     /**
-     * Method enables or disables all buttons with numbers
-     * in table depending on given boolean value,
-     * if given value is <true> - buttons will be enabled, otherwise disabled
-     *
-     * @param toEnable value that means if buttons should be enabled or disabled
+     * Method disables all current buttons with numbers in table
      */
-    private void enableOrDisableNumberButtons(boolean toEnable) {
-        buttonsWithNumbers.forEach(b -> b.setEnabled(toEnable));
+    private void disableNumberButtons() {
+        currentButtonsWithNumbers.forEach(b -> b.setEnabled(false));
     }
 
     /**
@@ -238,9 +267,9 @@ public class IntroPage implements EntryPoint {
     private int[] generateArray(int length) {
         int[] array = IntStream
                 .range(0, length)
-                .map(i -> (int) (Math.random() * HIGH_NUMBER_DIAPASON))
+                .map(i -> (int) (Math.random() * (NUMBER_CONSTANT_1000 + 1)))
                 .toArray();
-        array[length - 1] = (int) (Math.random() * NUMBER_CONSTANT_31);
+        array[length - 1] = (int) (Math.random() * (NUMBER_CONSTANT_30 + 1));
         return array;
     }
 }
